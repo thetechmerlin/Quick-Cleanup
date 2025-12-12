@@ -20,9 +20,10 @@ echo. >> "%LOG_FILE%"
 :: Check for Administrator privileges
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo This script requires Administrator privileges.
-    echo Please right-click and select "Run as administrator"
-    timeout /t 5
+    echo [ERROR] This script requires Administrator privileges.
+    echo [ERROR] Please right-click and select "Run as administrator"
+    echo.
+    pause
     exit /b 1
 )
 
@@ -91,7 +92,7 @@ exit /b 0
 :show_splash
 cls
 echo.
- __       __  ________  _______   __        ______  __    __ 
+e__       __  ________  _______   __        ______  __    __ 
 echo /  \     /  |/        |/       \ /  |      /      |/  \  /  |
 echo $$  \   /$$ |$$$$$$$$/ $$$$$$$  |$$ |      $$$$$$/ $$  \ $$ |
 echo $$$  \ /$$$ |$$ |__    $$ |__$$ |$$ |        $$ |  $$$  \$$ |
@@ -100,9 +101,7 @@ echo $$ $$ $$/$$ |$$$$$/    $$$$$$$  |$$ |        $$ |  $$ $$ $$ |
 echo $$ |$$$/ $$ |$$ |_____ $$ |  $$ |$$ |_____  _$$ |_ $$ |$$$$ |
 echo $$ | $/  $$ |$$       |$$ |  $$ |$$       |/ $$   |$$ | $$$ |
 echo $$/      $$/ $$$$$$$$/ $$/   $$/ $$$$$$$$/ $$$$$$/ $$/   $$/ 
-                                                             
-                                                             
-                                                             
+echo.
 echo Initializing Merlin's Quick Clean Up...
 timeout /t 3 /nobreak >nul
 cls
@@ -145,6 +144,8 @@ call :print_step "Cleaning thumbnail cache..."
 del /s /q "%USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
 call :show_progress
 call :print_success "Thumbnail cache cleaned"
+echo.
+pause
 exit /b 0
 
 :clean_package_cache
@@ -166,6 +167,8 @@ call :print_step "Cleaning Store cache..."
 wsreset.exe >nul 2>&1
 timeout /t 5 >nul
 call :print_success "Store cache cleaned"
+echo.
+pause
 exit /b 0
 
 :clean_system_logs
@@ -184,6 +187,8 @@ call :print_step "Clearing Security logs..."
 wevtutil.exe cl Security >nul 2>&1
 call :show_progress
 call :print_success "Security logs cleared"
+echo.
+pause
 exit /b 0
 
 :clean_misc_files
@@ -207,12 +212,14 @@ call :print_step "Cleaning recent files list..."
 del /s /q "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Recent\*.*" >nul 2>&1
 call :show_progress
 call :print_success "Recent files list cleaned"
+echo.
+pause
 exit /b 0
 
 :check_disk_health
 call :print_header "TASK: Disk Health Check"
 call :print_step "Checking disk space..."
-wmic logicaldisk get size,freespace,caption | findstr "C:" >nul 2>&1
+wmic logicaldisk get caption,freespace,size | findstr "C:"
 call :show_progress
 call :print_success "Disk space checked"
 
@@ -229,6 +236,8 @@ call :print_step "Running CHKDSK (read-only)..."
 chkdsk C: >nul 2>&1
 call :show_progress
 call :print_success "CHKDSK scan completed"
+echo.
+pause
 exit /b 0
 
 :check_filesystem
@@ -241,29 +250,33 @@ if %errorLevel% equ 0 (
     call :print_warning "Filesystem may need checking"
 )
 call :show_progress
+echo.
+pause
 exit /b 0
 
 :system_health_check
 call :print_header "TASK: System Health Check"
 call :print_step "Checking system uptime...
-systeminfo | findstr "System Boot Time" >nul 2>&1
+systeminfo | findstr "System Boot Time"
 call :show_progress
 call :print_success "Uptime displayed"
 
 call :print_step "Checking memory usage...
-wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /value | findstr "=" >nul 2>&1
+wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /value | findstr "="
 call :show_progress
 call :print_success "Memory usage checked"
 
 call :print_step "Checking for failed services...
-sc query | findstr "STOPPED" | findstr /v "STOPPABLE" >nul 2>&1
+sc query | findstr "STOPPED" | findstr /v "STOPPABLE"
 call :show_progress
 call :print_success "Service status checked"
 
 call :print_step "Checking CPU load...
-wmic cpu get loadpercentage | findstr /r "[0-9]" >nul 2>&1
+wmic cpu get loadpercentage | findstr /r "[0-9]"
 call :show_progress
 call :print_success "CPU load checked"
+echo.
+pause
 exit /b 0
 
 :performance_tweaks
@@ -283,6 +296,8 @@ call :print_step "Optimizing visual effects...
 reg add "HKCU\Software\Microsoft\Windows\DWM" /v EnableAeroPeek /t REG_DWORD /d 0 /f >nul 2>&1
 call :show_progress
 call :print_success "Visual effects optimized"
+echo.
+pause
 exit /b 0
 
 :generate_report
@@ -305,6 +320,8 @@ wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /value | findstr "=" >> "%
 echo. >> "%LOG_FILE%"
 
 call :print_success "Report saved to %LOG_FILE%"
+echo.
+pause
 exit /b 0
 
 :: ==============================================================================
@@ -341,41 +358,38 @@ exit /b 0
 call :print_header "FULL TUNE-UP MODE INITIATED"
 call :log_message "Full tune-up started"
 
+call :print_step "Starting Full Tune-Up in 3 seconds..."
+timeout /t 3 >nul
+
 call :skip_prompt "Clean Temporary Files"
 if %errorLevel% equ 1 call :clean_temp_files
-timeout /t 1 >nul
 
 call :skip_prompt "Clean Windows Update Cache"
 if %errorLevel% equ 1 call :clean_package_cache
-timeout /t 1 >nul
 
 call :skip_prompt "Clean System Logs"
 if %errorLevel% equ 1 call :clean_system_logs
-timeout /t 1 >nul
 
 call :skip_prompt "Clean Miscellaneous Files"
 if %errorLevel% equ 1 call :clean_misc_files
-timeout /t 1 >nul
 
 call :skip_prompt "Check Disk Health"
 if %errorLevel% equ 1 call :check_disk_health
-timeout /t 1 >nul
 
 call :skip_prompt "Check Filesystem"
 if %errorLevel% equ 1 call :check_filesystem
-timeout /t 1 >nul
 
 call :skip_prompt "System Health Check"
 if %errorLevel% equ 1 call :system_health_check
-timeout /t 1 >nul
 
 call :skip_prompt "Apply Performance Tweaks"
 if %errorLevel% equ 1 call :performance_tweaks
-timeout /t 1 >nul
 
 call :generate_report
 call :print_success "Full tune-up completed!"
 call :log_message "Full tune-up finished"
+echo.
+pause
 exit /b 0
 
 :: ==============================================================================
@@ -399,13 +413,17 @@ if "%choice%"=="7" call :system_health_check
 if "%choice%"=="8" call :performance_tweaks
 if "%choice%"=="9" call :run_full_tuneup
 if "%choice%"=="10" call :generate_report
-if "%choice%"=="0" goto :eof
+if "%choice%"=="0" goto :end_script
 
 echo.
-set /p exit_prompt=Press Enter to continue...
+echo [INFO] Press any key to return to menu...
+pause >nul
 goto :menu_loop
 
 :: Reset colors on exit
-:eof
+:end_script
 color 07
+echo.
+echo [INFO] Thank you for using Merlin's Quick Clean Up!
+pause
 exit /b 0
