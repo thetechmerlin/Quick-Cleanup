@@ -7,8 +7,9 @@ setlocal enabledelayedexpansion
 :: A user-friendly system cleaner with interactive menu and full automation options
 :: ==============================================================================
 
-:: Set terminal colors - Moss Green background (2), Cream White text (F)
-color 2F
+:: Set terminal colors - Dark green background, cream white text
+:: Note: Windows CMD has limited color palette - using closest available
+color 20
 
 :: Set log file location
 set LOG_FILE=%USERPROFILE%\Merlin-Cleanup-Log.txt
@@ -92,15 +93,9 @@ exit /b 0
 :show_splash
 cls
 echo.
-e__       __  ________  _______   __        ______  __    __ 
-echo /  \     /  |/        |/       \ /  |      /      |/  \  /  |
-echo $$  \   /$$ |$$$$$$$$/ $$$$$$$  |$$ |      $$$$$$/ $$  \ $$ |
-echo $$$  \ /$$$ |$$ |__    $$ |__$$ |$$ |        $$ |  $$$  \$$ |
-echo $$$$  /$$$$ |$$    |   $$    $$< $$ |        $$ |  $$$$  $$ |
-echo $$ $$ $$/$$ |$$$$$/    $$$$$$$  |$$ |        $$ |  $$ $$ $$ |
-echo $$ |$$$/ $$ |$$ |_____ $$ |  $$ |$$ |_____  _$$ |_ $$ |$$$$ |
-echo $$ | $/  $$ |$$       |$$ |  $$ |$$       |/ $$   |$$ | $$$ |
-echo $$/      $$/ $$$$$$$$/ $$/   $$/ $$$$$$$$/ $$$$$$/ $$/   $$/ 
+echo  __    __   __   __  ___       ___  __   __   ___      ___
+echo ^|  \/  ^| ^|__^| ^|__^|  ^|   ^|  ^| ^|__  ^|__^| ^|__^| ^|__  ^|^\ ^|  ^|  
+echo ^|      ^| ^|  ^| ^|  ^|  ^|   ^|__^| ^|___ ^|  ^| ^|    ^|___ ^| ^\^ ^|  ^|  
 echo.
 echo Initializing Merlin's Quick Clean Up...
 timeout /t 3 /nobreak >nul
@@ -223,7 +218,7 @@ wmic logicaldisk get caption,freespace,size | findstr "C:"
 call :show_progress
 call :print_success "Disk space checked"
 
-call :print_step "Running SMART check...
+call :print_step "Running SMART check..."
 wmic diskdrive get status | findstr "OK" >nul 2>&1
 if %errorLevel% equ 0 (
     call :show_progress
@@ -256,22 +251,22 @@ exit /b 0
 
 :system_health_check
 call :print_header "TASK: System Health Check"
-call :print_step "Checking system uptime...
+call :print_step "Checking system uptime..."
 systeminfo | findstr "System Boot Time"
 call :show_progress
 call :print_success "Uptime displayed"
 
-call :print_step "Checking memory usage...
+call :print_step "Checking memory usage..."
 wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /value | findstr "="
 call :show_progress
 call :print_success "Memory usage checked"
 
-call :print_step "Checking for failed services...
+call :print_step "Checking for failed services..."
 sc query | findstr "STOPPED" | findstr /v "STOPPABLE"
 call :show_progress
 call :print_success "Service status checked"
 
-call :print_step "Checking CPU load...
+call :print_step "Checking CPU load..."
 wmic cpu get loadpercentage | findstr /r "[0-9]"
 call :show_progress
 call :print_success "CPU load checked"
@@ -281,18 +276,18 @@ exit /b 0
 
 :performance_tweaks
 call :print_header "TASK: Performance Tweaks"
-call :print_step "Disabling unnecessary services...
+call :print_step "Disabling unnecessary services..."
 sc config Fax start= disabled >nul 2>&1
 sc config TabletInputService start= disabled >nul 2>&1
 call :show_progress
 call :print_success "Unnecessary services disabled"
 
-call :print_step "Clearing pagefile on shutdown...
+call :print_step "Clearing pagefile on shutdown..."
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 1 /f >nul 2>&1
 call :show_progress
 call :print_success "Pagefile cleanup configured"
 
-call :print_step "Optimizing visual effects...
+call :print_step "Optimizing visual effects..."
 reg add "HKCU\Software\Microsoft\Windows\DWM" /v EnableAeroPeek /t REG_DWORD /d 0 /f >nul 2>&1
 call :show_progress
 call :print_success "Visual effects optimized"
@@ -314,7 +309,7 @@ echo Disk Usage: >> "%LOG_FILE%"
 wmic logicaldisk get caption,freespace,size | findstr "C:" >> "%LOG_FILE%"
 echo. >> "%LOG_FILE%"
 
-call :print_step "Memory status...
+call :print_step "Memory status..."
 echo Memory Status: >> "%LOG_FILE%"
 wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /value | findstr "=" >> "%LOG_FILE%"
 echo. >> "%LOG_FILE%"
@@ -340,7 +335,7 @@ echo 2) Clean Windows Update Cache
 echo 3) Clean System Logs
 echo 4) Clean Miscellaneous Files
 echo 5) Check Disk Health
-echo 6) Check Filesystem
+echo 6) Check Check Filesystem
 echo 7) System Health Check
 echo 8) Apply Performance Tweaks
 echo 9) Run Full Tune-Up (All Tasks)
@@ -393,7 +388,7 @@ pause
 exit /b 0
 
 :: ==============================================================================
-:: MAIN EXECUTION
+:: MAIN EXECUTION - THIS WAS MISSING!
 :: ==============================================================================
 
 :: Show splash screen
